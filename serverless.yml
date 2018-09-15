@@ -1,0 +1,16 @@
+type: retail-app # Is this the name?
+version: 0.0.1
+
+components:
+  webFrontend: # How shall I name this?
+    type: static-website # What are the options?
+    inputs:
+      name: retail-frontend # How shall I name this?
+      contentPath: ${self.path}/frontend # Shall I use some other folder?
+      templateValues:
+        apiUrl: ${productsApi.url}
+      contentIndex: index.html
+      contentError: error.html
+      hostingRegion: us-east-1 # Change this!
+      hostingDomain: retail-${self.serviceId}.example.com # Change this to photato.eu
+      aliasDomain: www.retail-${self.serviceId}.example.com # Change this to www.photato.eu
