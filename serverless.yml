@@ -3,11 +3,14 @@
 service: photato
 frameworkVersion: "=1.31.0" # Pin to current Serverless version to make sure it works later too
 
+plugins:
+  - serverless-domain-manager
+
 provider:
   name: aws
   runtime: nodejs8.10 # Pin to this Node version to make sure it works later
   stage: ${opt:stage, 'development'} # Default to development
-  region: eu-central-1 # Going to Frankfurt
+  region: us-east-1 # Only this one works properly, they say
 
 # TODO: I don't get this part yet
 # you can add statements to the Lambda function's IAM Role here
@@ -40,9 +43,14 @@ provider:
 #    - exclude-me-dir/**
 
 functions:
-  hello:
-    handler: handler.hello
-
+  app:
+    handler: index.photatoApp
+    memorySize: 256 # optional, in MB, default is 1024
+    timeout: 5 # optional, in seconds, default is 6
+    reservedConcurrency: 5 # optional reserved concurrency limit, default is the account concurrency limit
+    events:
+      - http: ANY /
+      - http: 'ANY {proxy+}'
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details
@@ -50,27 +58,6 @@ functions:
 #      - http:
 #          path: users/create
 #          method: get
-#      - s3: ${env:BUCKET}
-#      - schedule: rate(10 minutes)
-#      - sns: greeter-topic
-#      - stream: arn:aws:dynamodb:region:XXXXXX:table/foo/stream/1970-01-01T00:00:00.000
-#      - alexaSkill: amzn1.ask.skill.xx-xx-xx-xx
-#      - alexaSmartHome: amzn1.ask.skill.xx-xx-xx-xx
-#      - iot:
-#          sql: "SELECT * FROM 'some_topic'"
-#      - cloudwatchEvent:
-#          event:
-#            source:
-#              - "aws.ec2"
-#            detail-type:
-#              - "EC2 Instance State-change Notification"
-#            detail:
-#              state:
-#                - pending
-#      - cloudwatchLog: '/aws/lambda/hello'
-#      - cognitoUserPool:
-#          pool: MyUserPool
-#          trigger: PreSignUp
 
 #    Define function environment variables here
 #    environment:
@@ -87,3 +74,15 @@ functions:
 #     NewOutput:
 #       Description: "Description for the output"
 #       Value: "Some output value"
+
+custom:
+  domains:
+    production: photato.eu
+    development: development.photato.eu
+
+  customDomain:
+    basePath: ''
+    domainName: ${self:custom.domains.${self:provider.stage}}
+    stage: ${self:provider.stage}
+    certificateName: '*.photato.eu'
+    createRoute53Record: true
