@@ -34,3 +34,32 @@ components:
           get:
             function: ${listProducts}
             cors: true
+
+  # The backend
+  createProduct: # TODO: Add my real functions
+    type: aws-lambda
+    inputs:
+      memory: 512
+      timeout: 10
+      handler: products.create
+      root: ${self.path}/code
+      env:
+        productTableName: products-${self.serviceId}
+  getProduct:
+    type: aws-lambda
+    inputs:
+      memory: 512
+      timeout: 10
+      handler: products.get
+      root: ${self.path}/code
+      env:
+        productTableName: products-${self.serviceId}
+  listProducts:
+    type: aws-lambda
+    inputs:
+      memory: 512
+      timeout: 10
+      handler: products.list
+      root: ${self.path}/code
+      env:
+        productTableName: products-${self.serviceId}
