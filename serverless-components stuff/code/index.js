@@ -1,6 +1,6 @@
-const AWS = require('aws-sdk');
+const aws = require('aws-sdk');
 
-const dynamo = new AWS.DynamoDB.DocumentClient({region: 'us-east-1'}); // TODO: Use Frankfurt region!
+const dynamo = new aws.DynamoDB.DocumentClient({region: 'us-east-1'}); // TODO: Use Frankfurt region!
 
 const tableName = process.env.productTableName;
 
