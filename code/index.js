@@ -4,6 +4,7 @@ const dynamo = new AWS.DynamoDB.DocumentClient({region: 'us-east-1'}); // TODO: 
 
 const tableName = process.env.productTableName;
 
+// TODO: Use `async function create(event, context) {` instead, for Node 8.10! return null, {}; AND throw error;
 function create(event, context, callback) { // TODO: Use my own methods!
     const item = JSON.parse(event.body);
     dynamo.put(
