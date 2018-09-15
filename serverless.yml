@@ -63,3 +63,23 @@ components:
       root: ${self.path}/code
       env:
         productTableName: products-${self.serviceId}
+
+  # The DB
+  productsDb: # TODO: I'll need to rename this DB
+    type: aws-dynamodb
+    inputs:
+      region: us-east-1 # TODO: Use a different region
+      tables: # TODO: Add my own tables and indexes
+      - name: products-${self.serviceId}
+        hashKey: id
+        indexes:
+        - name: ProductIdIndex
+          type: global
+          hashKey: id
+        schema:
+          id: number
+          name: string
+          description: string
+          price: number
+        options:
+          timestamps: true
