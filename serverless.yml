@@ -5,6 +5,7 @@ frameworkVersion: "=1.31.0" # Pin to current Serverless version to make sure it 
 
 plugins:
   - serverless-domain-manager
+  - serverless-offline
 
 provider:
   name: aws
@@ -75,6 +76,7 @@ functions:
 #       Description: "Description for the output"
 #       Value: "Some output value"
 
+# serverless-domain-manager settings, to have a nice URL.
 custom:
   domains:
     production: photato.eu
