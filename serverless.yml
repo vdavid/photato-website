@@ -1,16 +1,36 @@
-type: retail-app # Is this the name?
+type: retail-app # TODO: Is this the name?
 version: 0.0.1
 
 components:
-  webFrontend: # How shall I name this?
-    type: static-website # What are the options?
+  # The frontend
+  webFrontend: # TODO: How shall I name this?
+    type: static-website # TODO: What are the options?
     inputs:
-      name: retail-frontend # How shall I name this?
-      contentPath: ${self.path}/frontend # Shall I use some other folder?
+      name: retail-frontend # TODO: How shall I name this?
+      contentPath: ${self.path}/frontend # TODO: Shall I use some other folder?
       templateValues:
         apiUrl: ${productsApi.url}
       contentIndex: index.html
       contentError: error.html
-      hostingRegion: us-east-1 # Change this!
-      hostingDomain: retail-${self.serviceId}.example.com # Change this to photato.eu
-      aliasDomain: www.retail-${self.serviceId}.example.com # Change this to www.photato.eu
+      hostingRegion: us-east-1 # TODO: Change this!
+      hostingDomain: retail-${self.serviceId}.example.com # TODO: Change this to photato.eu
+      aliasDomain: www.retail-${self.serviceId}.example.com # TODO: Change this to www.photato.eu
+
+  # The REST API
+  productsApi:
+    type: rest-api
+    inputs:
+      gateway: aws-apigateway # TODO: Is this some magic value?
+      routes:
+        /products: # TODO: I will need different values here
+          post:
+            function: ${createProduct}
+            cors: true
+          /{id}:
+            get:
+              function: ${getProduct}
+              cors: true
+        /catalog/{...categories}:
+          get:
+            function: ${listProducts}
+            cors: true
