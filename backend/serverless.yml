@@ -1,0 +1,168 @@
+# 'service' is the name of the service
+service: ${self:custom.projectName}-form-service
+
+plugins:
+  - serverless-stack-output
+
+# 'custom' is a place to define custom variables used elsewhere in the yaml config
+custom:
+  defaultStage: prod
+  currentStage: ${opt:stage, self:custom.defaultStage}
+  projectName: ${file(./config.${self:custom.currentStage}.json):projectName}
+  currentRegion: ${opt:region, "us-west-2"}
+  formsTable: ${self:custom.projectName}-${self:custom.currentStage}-forms
+  entriesTable: ${self:custom.projectName}-${self:custom.currentStage}-form-entries
+  output:
+    handler: postDeploy.handler
+    file: .serverless/manifest.json
+
+# 'provider' specifies where to deploy the service. Aka deploy to 'aws'
+provider:
+  name: aws
+  runtime: nodejs6.10
+  # ${self:custom.currentRegion} references the 'custom' field in this file
+  # it grabs the 'currentRegion' key and places it in the 'region' key defined below
+  region: ${self:custom.currentRegion}
+  stage: ${self:custom.currentStage}
+  # 'environment' is where you define any process.env environment variables needed in code
+  environment:
+    FORMS_TABLE: ${self:custom.formsTable}
+    ENTRIES_TABLE: ${self:custom.entriesTable}
+    AUTH0_DOMAIN: ${file(./config.${self:custom.currentStage}.json):AUTH0_DOMAIN}
+    SENDGRID_API_KEY: ${file(./config.${self:custom.currentStage}.json):SENDGRID_API_KEY}
+  # Set IAM permissions for the functions
+  iamRoleStatements:
+  - Effect: Allow
+    Action:
+      - dynamodb:DescribeTable
+      - dynamodb:Query
+      - dynamodb:Scan
+      - dynamodb:GetItem
+      - dynamodb:PutItem
+      - dynamodb:UpdateItem
+      - dynamodb:DeleteItem
+      - dynamodb:BatchWriteItem
+    # Allow function to access only this database
+    Resource: [
+      "arn:aws:dynamodb:${self:custom.currentRegion}:*:table/${self:custom.formsTable}",
+      "arn:aws:dynamodb:${self:custom.currentRegion}:*:table/${self:custom.entriesTable}"
+      ]
+
+# 'functions' references all the functions and events in the service
+functions:
+  auth:
+    handler: handler.auth
+  handleFormEntry:
+    handler: handler.handleFormEntry
+    events:
+      - http:
+          path: handle-entry
+          method: post
+          cors: true
+  getFormEntries:
+    handler: handler.getFormEntries
+    events:
+      - http:
+          path: get-entries
+          method: post
+          authorizer: auth
+          cors: true
+  deleteFormEntry:
+    handler: handler.deleteFormEntry
+    events:
+      - http:
+          path: delete-entry
+          method: post
+          authorizer: auth
+          cors: true
+  updateFormSettings:
+    handler: handler.updateFormSettings
+    events:
+      - http:
+          path: update-form-settings
+          method: post
+          authorizer: auth
+          cors: true
+  getForms:
+    handler: handler.getForms
+    events:
+      - http:
+          path: get-forms
+          method: post
+          authorizer: auth
+          cors: true
+
+# 'resources' defines any infrastructure needed for the service aka a database
+resources:
+  Resources:
+    # This response is needed for custom authorizer ¯\_(ツ)_/¯
+    GatewayResponse:
+      Type: 'AWS::ApiGateway::GatewayResponse'
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+        ResponseType: EXPIRED_TOKEN
+        RestApiId:
+          Ref: 'ApiGatewayRestApi'
+        StatusCode: '401'
+    AuthFailureGatewayResponse:
+      Type: 'AWS::ApiGateway::GatewayResponse'
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+        ResponseType: UNAUTHORIZED
+        RestApiId:
+          Ref: 'ApiGatewayRestApi'
+        StatusCode: '401'
+    FormsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.formsTable}
+        AttributeDefinitions:
+          - AttributeName: formId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: formId
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+    EntriesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.entriesTable}
+        AttributeDefinitions:
+          - AttributeName: formId
+            AttributeType: S
+          - AttributeName: timestamp
+            AttributeType: N
+        KeySchema:
+          - AttributeName: formId
+            KeyType: HASH
+          - AttributeName: timestamp
+            KeyType: RANGE
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        # GlobalSecondaryIndexes:
+        # - IndexName: contacts
+        #   KeySchema:
+        #   - AttributeName: email
+        #     KeyType: HASH
+        #   Projection:
+        #     ProjectionType: KEYS_ONLY
+        #   ProvisionedThroughput:
+        #     ReadCapacityUnits: 1
+        #     WriteCapacityUnits: 1
+  Outputs:
+    Testing:
+      Value: { "Fn::Join" : ["", [ "https://", { "Ref" : "ApiGatewayRestApi" }, ".execute-api.${self:provider.region}.amazonaws.com/${self:provider.stage}" ] ]  }
+    # ExampleUserKey:
+    #   Value:
+    #     Ref: ExampleUserKey
+    # ExampleUserSecret:
+    #   Value: {"Fn::GetAtt": ["ExampleUserKey", "SecretAccessKey"]}
+    ExampleStaticValue:
+      Value: example-static-value

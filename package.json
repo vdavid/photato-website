@@ -5,20 +5,11 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "deploy": "sls deploy",
-    "deploy-production": "sls deploy --stage production"
-    "start-development": "sls offline start"
+    "deploy": "cd backend && sls deploy",
+    "deploy-production": "cd backend && sls deploy --stage production",
+    "start-development": "cd backend && sls offline start",
+    "postinstall": "cd frontend && npm i"
   },
   "author": "David Veszelovszki",
-  "license": "ISC",
-  "dependencies": {
-    "body-parser": "^1.18.3",
-    "express": "^4.16.3",
-    "hbs": "^4.0.1",
-    "serverless-http": "^1.6.0"
-  },
-  "devDependencies": {
-    "serverless-domain-manager": "^2.6.5",
-    "serverless-offline": "^3.25.12"
-  }
+  "license": "ISC"
 }
