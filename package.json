@@ -8,7 +8,7 @@
     "deploy": "cd backend && sls deploy",
     "deploy-production": "cd backend && sls deploy --stage production",
     "start-development": "cd backend && sls offline start",
-    "postinstall": "cd frontend && npm i"
+    "postinstall": "cd frontend && npm i && npm run build"
   },
   "author": "David Veszelovszki",
   "license": "ISC"
