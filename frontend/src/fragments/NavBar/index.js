@@ -19,7 +19,7 @@ class NavBar extends Component {
                 <Link to={`/profile/`} style={styles}>
                     Profile (protected)
                 </Link>
-                <Link to={`/lsdkakdllakd/`} style={styles}>
+                <Link to={`/kukika/`} style={styles}>
                     404 link
                 </Link>
             </div>
