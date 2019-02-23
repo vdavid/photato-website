@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "deploy": "cd backend && sls deploy",
     "deploy-production": "cd backend && sls deploy --stage production",
-    "start-development": "cd backend && sls offline start"
+    "start-development": "cd backend && sls offline start",
+    "postinstall": "cd backend && npm i && cd ../frontend && npm i"
   },
   "author": "David Veszelovszki",
   "license": "ISC"
