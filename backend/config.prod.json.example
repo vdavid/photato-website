@@ -1,5 +1,0 @@
-{
-  "projectName": "site",
-  "AUTH0_DOMAIN": "xyz.auth0.com",
-  "SENDGRID_API_KEY": "your-send-grid-api-key"
-}
