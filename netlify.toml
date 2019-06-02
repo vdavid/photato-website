@@ -1,2 +1,2 @@
 [build]
-  command = "./build.sh"
+  command = "export NODE_VERSION=8 ; export NODE_ENV=production ; cd client && npm ci && npm run build && cd .. && cd server && npm ci && cd .. && npm ci && npm run start:production"
