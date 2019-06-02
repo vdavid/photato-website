@@ -2,10 +2,14 @@
   "name": "photato-website",
   "version": "1.0.0",
   "scripts": {
-    "start": "cd client && npm start",
-    "client": "cd client && npm start",
-    "server": "cd server && nodemon local-server.js",
-    "start-server-and-client": "concurrently --kill-others-on-fail \"npm run server\" \"npm run client\""
+    "start": "concurrently --kill-others-on-fail \"npm run server\" \"npm run client\"",
+    "build": "./build.sh",
+    "build-client": "cd client && npm run build",
+    "run-client:development": "cd client && npm start",
+    "run-server:development": "cd server && nodemon local-server.js",
+    "run-server:production": "cd server && forever local-server.js",
+    "start:development": "concurrently --kill-others-on-fail \"npm run run-server:development\" \"npm run run-client:development\"",
+    "start:production": "concurrently --kill-others-on-fail \"npm run run-server:production\" \"npm run build-client\""
   },
   "dependencies": {},
   "devDependencies": {
